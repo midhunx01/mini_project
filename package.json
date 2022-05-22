@@ -1,0 +1,24 @@
+{
+  "name": "mini_project",
+  "version": "1.0.0",
+  "description": "Real Time Attention Span Tracking System  For Online Education ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/midhunx01/mini_project.git"
+  },
+  "author": "midhun",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/midhunx01/mini_project/issues"
+  },
+  "homepage": "https://github.com/midhunx01/mini_project#readme",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "ejs": "^3.1.8",
+    "express": "^4.18.1"
+  }
+}
