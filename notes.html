@@ -6,3 +6,13 @@ https://cdn.mos.cms.futurecdn.net/ywjaGbPEryQxZuWcttymik.jpg
 
 ////don't know where it come 🤔
 const req = require("express/lib/request");
+
+
+
+
+const user = new User ({
+    firstName : req.body.firstname,
+    lastName : req.body.lastname,
+    email : req.body.email,
+    password : req.body.password
+  },

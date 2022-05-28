@@ -4,7 +4,9 @@ const bodyParser = require('body-parser')
 const ejs = require('ejs')
 const mongoose = require('mongoose');
 const encrypt = require('mongoose-encryption')
-
+const session = require('express-session')
+const passport = require('passport')
+const passportLocalMongoose = require('passport-local-mongoose')
 
 const app = express();
 
@@ -13,13 +15,48 @@ app.set("view engine","ejs")
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
+app.use(session({
+      secret : "our little secret",
+      resave : false,
+      saveUninitialized : false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 mongoose.connect("mongodb://localhost:27017/userData",{useNewUrlParser:true});
 
 
-app.get("/", function(req,res){
-  res.render("homepage")
+const userSchema = new mongoose.Schema({
+  firstName : String,
+  lastName : String,
+  username : String,
+  password : String
 });
+
+userSchema.plugin(passportLocalMongoose);
+
+//userSchema.plugin(encrypt,{secret : process.env.API_KEY,encryptedFields:["password"]});
+
+const User = mongoose.model("User",userSchema);
+
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+app.get("/", function(req,res){
+  if (req.isAuthenticated()){
+    res.redirect("/homepage");
+  } else {
+    res.redirect("/login")
+  }
+ 
+});
+
+app.get("/homepage",function (req,res){
+  res.render("homepage")
+})
 
 app.get("/signup", function(req,res){
   res.render("signup")
@@ -30,21 +67,20 @@ app.get("/login", function(req,res){
   res.render("login")
 });
 
-app.post("/signup",function(req,res){
-  const user = new User ({
-    firstName : req.body.firstname,
-    lastName : req.body.lastname,
-    email : req.body.email,
-    password : req.body.password
-});
 
-user.save(function(err){
-  if (err){
-    console.log(err);
-  }else{
-    res.render("success")
-  }
-});
+
+app.post("/signup",function(req,res){
+ 
+  User.register({username : req.body.email},req.body.password,function (err,user){
+    if (err){
+      console.log(err);
+      res.render("signup");
+    }else {
+      passport.authenticate("local") (req,res,function(){
+        res.redirect("/");
+      });
+    }
+  })
 });
 
 app.post("/login",function(req,res){
@@ -64,16 +100,7 @@ app.post("/login",function(req,res){
    })
 })
 
-const userSchema = new mongoose.Schema({
-     firstName : String,
-     lastName : String,
-     email : String,
-     password : String
-});
 
-userSchema.plugin(encrypt,{secret : process.env.API_KEY,encryptedFields:["password"]});
-
-const User = mongoose.model("user",userSchema);
 
 
 
