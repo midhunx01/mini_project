@@ -23,14 +23,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb://localhost:27017/userData",{useNewUrlParser:true});
+mongoose.connect("mongodb://localhost:27017/userData",{useNewUrlParser: true});
 
 
 const userSchema = new mongoose.Schema({
-  firstName : String,
-  lastName : String,
   username : String,
-  password : String
+  email : String,
+  password : String,
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -46,17 +45,17 @@ passport.deserializeUser(User.deserializeUser());
 
 
 app.get("/", function(req,res){
+ res.render("index")
+ });
+
+app.get("/homepage",function (req,res){
   if (req.isAuthenticated()){
-    res.redirect("/homepage");
+    res.render("homepage")
   } else {
     res.redirect("/login")
   }
- 
+  
 });
-
-app.get("/homepage",function (req,res){
-  res.render("homepage")
-})
 
 app.get("/signup", function(req,res){
   res.render("signup")
@@ -67,38 +66,50 @@ app.get("/login", function(req,res){
   res.render("login")
 });
 
+app.get("/success",function(req,res){
+  res.render("success")
+})
 
 
 app.post("/signup",function(req,res){
  
-  User.register({username : req.body.email},req.body.password,function (err,user){
-    if (err){
-      console.log(err);
-      res.render("signup");
-    }else {
-      passport.authenticate("local") (req,res,function(){
-        res.redirect("/");
-      });
-    }
-  })
+  User.register({username : req.body.username, email : req.body.email},req.body.password , function (err, user){
+      if (err) {
+        console.log(err);
+        res.redirect("/login");
+      } else {
+        passport.authenticate("local")(req, res, function () {
+          res.redirect("/homepage");
+        });
+      }
+    });
 });
 
 app.post("/login",function(req,res){
-   const username = req.body.email;
-   const password = req.body.password;
 
-   User.findOne({email : username},function(err,foundUser){
+  const user = new User({
+    username : req.body.username,
+    password : req.body.password,
+  });
+   
+   req.login(user , function (err){
      if (err){
        console.log(err);
      }else {
-       if (foundUser){
-         if (foundUser.password === password){
-           res.render("homepage")
-         }
-       }
+       passport.authenticate("local")(req,res,function (){
+         res.redirect("/homepage");
+       })
      }
-   })
-})
+    })
+   });
+
+   app.get('/logout', function(req, res, next) {
+    req.logout(function(err) {
+      if (err) { 
+        return next(err); }
+      res.redirect('/');
+    });
+  });
 
 
 

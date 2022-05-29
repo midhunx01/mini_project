@@ -88,10 +88,10 @@
 							<h1>Login</h1>
 						 </div>
 					</div>
-                   <form action="" method="post" name="login">
+                   <form action="/login" method="post" name="login">
                            <div class="form-group">
-                              <label for="exampleInputEmail1">Email address</label>
-                              <input type="email" name="email"  class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+                              <label for="exampleInputEmail1">Enter Your Username</label>
+                              <input type="text" name="username"  class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter Your Username">
                            </div>
                            <div class="form-group">
                               <label for="exampleInputEmail1">Password</label>
@@ -142,9 +142,9 @@
              $("form[name='login']").validate({
                rules: {
                  
-                 email: {
+                 username: {
                    required: true,
-                   email: true
+                   username: true
                  },
                  password: {
                    required: true,
